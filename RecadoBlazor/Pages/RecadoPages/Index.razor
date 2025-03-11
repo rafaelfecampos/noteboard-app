@@ -1,0 +1,60 @@
+﻿@page "/recados"
+@using RecadoModel
+@inject HttpClient Http
+
+<h1>Recados</h1>
+<hr />
+
+@if (recados == null)
+{
+    <p><strong>Carregando...</strong></p>
+}
+else if (recados.Count == 0)
+{
+    <p><strong>Nenhum recado encontrado.</strong></p>
+}
+else
+{
+    <a href="/recados/create" class="btn btn-primary">Inserir</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Mensagem</th>
+                <th scope="col">Remetente</th>
+                <th scope="col">Destinatário</th>
+                <th scope="col">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var recado in recados)
+            {
+                <tr>
+                    <td>@recado.Mensagem</td>
+                    <td>@recado.Remetente</td>
+                    <td>@recado.Destinatario</td>
+                    <td>
+                        <a href=@($"/recados/details/{recado.Id}") class="btn btn-secondary btn-sm">Consultar</a>
+                        <a href=@($"/recados/edit/{recado.Id}") class="btn btn-warning btn-sm">Alterar</a>
+                        <a href=@($"/recados/delete/{recado.Id}") class="btn btn-danger btn-sm">Excluir</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IList<RecModel>? recados;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            recados = await Http.GetFromJsonAsync<IList<RecModel>>("https://localhost:7081/api/recadoes");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro: {ex.Message}");
+        }
+    }
+}

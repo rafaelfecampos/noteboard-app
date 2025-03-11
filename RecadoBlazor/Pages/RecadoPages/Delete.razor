@@ -1,0 +1,78 @@
+﻿@page "/recados/delete/{Id:int}"
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@using RecadoModel
+
+<PageTitle>Deletar</PageTitle>
+
+<h1>Deletar</h1>
+
+<h3>Tem certeza que deseja deletar mensagem?</h3>
+<div>
+    <h4>Recado</h4>
+    <hr />
+    @if (recado is null)
+    {
+        <p><em>Carregando...</em></p>
+    }
+    else
+    {
+        <dl class="row">
+            <dt class="col-sm-2">Mensagem</dt>
+            <dd class="col-sm-10">@recado.Mensagem</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Remetente</dt>
+            <dd class="col-sm-10">@recado.Remetente</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Destinatario</dt>
+            <dd class="col-sm-10">@recado.Destinatario</dd>
+        </dl>
+        <EditForm Model="recado" OnValidSubmit="DeleteRecado">
+            <button type="submit" class="btn btn-danger" disabled="@(recado is null)">Delete</button> |
+            <a href="/recados">Voltar</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private RecModel? recado;
+
+    [Parameter]
+    public int Id { get; set; }
+    private string errorMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            recado = await Http.GetFromJsonAsync<RecModel>($"https://localhost:7081/api/recadoes/{Id}");
+
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erro: {ex.Message}";
+        }
+    }
+
+    public async Task DeleteRecado()
+    {
+        try
+        {
+            var response = await Http.DeleteAsync($"https://localhost:7081/api/recadoes/{recado!.Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/recados");
+            }
+            else
+            {
+                errorMessage = "Erro ao deletar";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erro: {ex.Message}";
+        }
+    }
+}

@@ -1,0 +1,75 @@
+﻿@page "/recados/edit/{Id:int}"
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@using RecadoModel
+@using Microsoft.AspNetCore.Components.Forms
+
+<PageTitle>Alterar</PageTitle>
+
+<h1>Alterar</h1>
+
+<h4>Recado</h4>
+<hr />
+@if (Recado == null)
+{
+    <p><em>Carregando...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm Model="@Recado" OnValidSubmit="@UpdateRecado">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <input type="hidden" name="Recado.Id" value="@Recado.Id" />
+                <div class="mb-3">
+                    <label for="mensagem" class="form-label">Mensagem:</label>
+                    <InputText id="mensagem" @bind-Value="Recado.Mensagem" class="form-control" />
+                    <ValidationMessage For="() => Recado.Mensagem" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="remetente" class="form-label">Remetente:</label>
+                    <InputText id="remetente" @bind-Value="Recado.Remetente" class="form-control" />
+                    <ValidationMessage For="() => Recado.Remetente" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="destinatario" class="form-label">Destinatario:</label>
+                    <InputText id="destinatario" @bind-Value="Recado.Destinatario" class="form-control" />
+                    <ValidationMessage For="() => Recado.Destinatario" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/recados">Voltar</a>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    public RecModel? Recado { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Recado = await Http.GetFromJsonAsync<RecModel>($"https://localhost:7081/api/recadoes/{Id}");
+
+    }
+
+    private async Task UpdateRecado()
+    {
+        var response = await Http.PutAsJsonAsync($"https://localhost:7081/api/recadoes/{Recado!.Id}", Recado);
+
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/recados");
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/Error");
+        }
+    }
+}

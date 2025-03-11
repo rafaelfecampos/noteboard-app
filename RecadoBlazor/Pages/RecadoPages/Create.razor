@@ -1,0 +1,65 @@
+﻿@page "/recados/create"
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@using RecadoModel
+
+<PageTitle>Criar</PageTitle>
+
+<h1>Criar</h1>
+
+<h4>Recado</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm Model="recado" OnValidSubmit="AddRecado">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+            <div class="mb-3">
+                <label for="mensagem" class="form-label">Mensagem:</label>
+                <InputText id="mensagem" @bind-Value="recado.Mensagem" class="form-control" />
+                <ValidationMessage For="() => recado.Mensagem" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="remetente" class="form-label">Remetente:</label>
+                <InputText id="remetente" @bind-Value="recado.Remetente" class="form-control" />
+                <ValidationMessage For="() => recado.Remetente" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="destinatario" class="form-label">Destinatário:</label>
+                <InputText id="destinatario" @bind-Value="recado.Destinatario" class="form-control" />
+                <ValidationMessage For="() => recado.Destinatario" class="text-danger" />
+            </div>
+            <button type="submit" class="btn btn-primary">Criar</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/recados">Voltar</a>
+</div>
+
+@code {
+    private RecModel recado = new();
+
+    private string errorMessage;
+
+    public async Task AddRecado()
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync("https://localhost:7081/api/recadoes", recado);
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/recados");
+            }
+            else
+            {
+                errorMessage = "Error creating Recado.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error creating Recado: {ex.Message}";
+        }
+    }
+}

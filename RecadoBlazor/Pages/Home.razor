@@ -1,0 +1,30 @@
+﻿@page "/"
+@inject HttpClient Http
+@using RecadoModel
+
+<PageTitle>Home</PageTitle>
+
+<h1>Olá, bem vindo!</h1>
+
+<h4>Entre na aba "Recados" e escreva sua mensagem!</h4>
+
+<p>Existem @(recados?.Count() ?? 0) recados cadastrados.</p>
+
+
+
+
+@code{
+    private IList<RecModel>? recados;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            recados = await Http.GetFromJsonAsync<IList<RecModel>>("https://localhost:7081/api/recadoes");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro: {ex.Message}");
+        }
+    }
+}
